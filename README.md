@@ -68,3 +68,7 @@ $cancelCall = $nexusggr->cancelCall();
 $controlUserRtp = $nexusggr->controlUserRtp();
 $controlAllUsersRtp = $nexusggr->controlAllUsersRtp();
 ```
+## Authors
+
+- [@awkaay](https://t.me/synystergatesofolympus)
+
