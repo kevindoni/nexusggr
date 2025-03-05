@@ -83,7 +83,7 @@ class Nexusggr
         return $this->postArray('game_launch', $array);
     }
 
-    public function proviers()
+    public function providers()
     {
         return $this->postArray('provider_list');
     }
@@ -109,7 +109,6 @@ class Nexusggr
         curl_setopt_array($curl, [
             CURLOPT_URL => $this->endpoint,
             CURLOPT_POST => true,
-            CURLOPT_TCP_FASTOPEN => true,
             CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_2_0,
             CURLOPT_POSTFIELDS => $encode,
             CURLOPT_HTTPHEADER => [
@@ -118,10 +117,7 @@ class Nexusggr
             ],
             CURLOPT_TIMEOUT_MS => 60000,
             CURLOPT_CONNECTTIMEOUT_MS => 30000,
-            CURLOPT_FRESH_CONNECT => false,
-            CURLOPT_FORBID_REUSE => false,
             CURLOPT_ENCODING => 'gzip',
-            CURLOPT_NOSIGNAL => true,
             CURLOPT_RETURNTRANSFER => true,
         ]);
 
