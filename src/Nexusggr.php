@@ -102,6 +102,62 @@ class Nexusggr
         return $this->postArray('get_game_log', $array);
     }
 
+    public function currentPlayers()
+    {
+        return $this->postArray('call_players');
+    }
+
+    public function callScatterList(string $provier, string $game)
+    {
+        $array = ['provider_code' => $provier, 'game_code' => $game];
+
+        return $this->postArray('call_list', $array);
+    }
+
+    public function callScatterApply(string $username, string $provier, string $game, int $rtp, int $type)
+    {
+        $array = ['provider_code' => $provier, 'game_code' => $game, 'user_code' => $username, 'call_rtp' => $rtp, 'call_type' => $type];
+
+        return $this->postArray('call_apply', $array);
+    }
+
+    public function callHistory()
+    {
+        $array = ['offset' => 0, 'limit' => 100];
+
+        return $this->postArray('call_history', $array);
+    }
+
+    public function cancelCall(int $callId)
+    {
+        $array = ['call_id' => $callId];
+
+        return $this->postArray('call_cancel', $array);
+    }
+
+    public function controlUserRtp(string $username, string $provider, int $rtp)
+    {
+        $array = ['provider_code' => $provider, 'user_code' => $username, 'rtp' => $rtp];
+
+        return $this->postArray('control_rtp', $array);
+    }
+
+    public function controlAllUsersRtp(int $rtp)
+    {
+        $getInfo = $this->info();
+        $data = [];
+        if (array_key_exists('user', $getInfo)) {
+            foreach ($getInfo['user'] as $user) {
+                $data = ['username' => $user['user_code']];
+            }
+            $array = ['user_codes' => json_encode($data['username']), 'rtp' => $rtp];
+        } else {
+            return ['error' => 'Not found any user'];
+        }
+
+        return $this->postArray('control_users_rtp', $array);
+    }
+
     public final function curlInitialized($encode)
     {
         $curl = curl_init();
