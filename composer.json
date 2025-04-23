@@ -43,5 +43,16 @@
     "issues": "https://github.com/kevindoni/nexusggr/issues",
     "source": "https://github.com/kevindoni/nexusggr",
     "telegram": "https://t.me/synystergatesofolympus"
+  },
+  "extra": {
+    "laravel": {
+      "providers": [
+        "Kevindoni\\Nexusggr\\NexusggrServiceProvider"
+      ],
+      "aliases": {
+        "Nexusggr": "Kevindoni\\Nexusggr\\Facades\\Nexusggr",
+        "Telo": "Kevindoni\\Nexusggr\\Facades\\Telo"
+      }
+    }
   }
 }
