@@ -1,10 +1,10 @@
 {
-  "name": "awkaay/nexusggr",
+  "name": "kevindoni/nexusggr",
   "description": "Easy integration API client for NexusGGR gaming platform.",
   "type": "library",
   "license": "MIT",
   "keywords": [
-    "awkaay",
+    "kevindoni",
     "nexusggr",
     "gaming",
     "api",
@@ -13,15 +13,15 @@
     "casino",
     "slots"
   ],
-  "homepage": "https://github.com/awkaay/nexusggr",
+  "homepage": "https://github.com/kevindoni/nexusggr",
   "autoload": {
     "psr-4": {
-      "Awkaay\\Nexusggr\\": "src/"
+      "Kevindoni\\Nexusggr\\": "src/"
     }
   },
   "authors": [
     {
-      "name": "awkaay",
+      "name": "kevindoni",
       "email": "lifaamiroh137@gmail.com",
       "role": "Developer"
     }
@@ -37,8 +37,8 @@
     "sort-packages": true
   },
   "support": {
-    "issues": "https://github.com/awkaay/nexusggr/issues",
-    "source": "https://github.com/awkaay/nexusggr",
+    "issues": "https://github.com/kevindoni/nexusggr/issues",
+    "source": "https://github.com/kevindoni/nexusggr",
     "telegram": "https://t.me/synystergatesofolympus"
   }
 }
