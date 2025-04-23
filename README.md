@@ -1,73 +1,99 @@
+# Nexusggr PHP API Client
 
-# NEXUSGGR API DOCUMENTATION (LARAVEL)
-
+A PHP client library for integrating with the Nexusggr API.
 
 ## Installation
 
-Required : 
-- Laravel 11 or higher
-- PHP 8.2 or higher
-
-Open your laravel project directory then install
-
 ```bash
-  composer require awkaay/nexusggr
+composer require awkaay/nexusggr
 ```
-    
-- Place it inside the .env file
 
-```bash
-NEXUSGGR_AGENT=youragent
-NEXUSGGR_TOKEN=yourtoken
+## Configuration
+
+Configure the client using environment variables in your `.env` file:
+
+```
+NEXUSGGR_AGENT=your_agent_code
+NEXUSGGR_TOKEN=your_agent_token
 NEXUSGGR_ENDPOINT=https://api.nexusggr.com
 ```
-## Usage/Examples
 
-- Create new user:
-
-```php
-use Awkaay\Nexusggr\Nexusggr;
-
-$nexusggr = new Nexusggr;
-$register = $nexusggr->register(username: 'test');
-```
-- Deposit or Withdraw:
+Alternatively, you can pass configuration directly when instantiating the client:
 
 ```php
-use Awkaay\Nexusggr\Nexusggr;
-
-$nexusggr = new Nexusggr;
-$deposit = $nexusggr->transaction(username: 'test', type: 'deposit', amount: 100000);
-$withdraw = $nexusggr->transaction(username: 'test', type: 'withdraw', amount: 100000);
+$client = new Awkaay\Nexusggr\Nexusggr(
+    'your_agent_code',
+    'your_agent_token',
+    'https://api.nexusggr.com'
+);
 ```
-- Reset User Balance:
+
+### Database Configuration
+
+You can also store credentials in a database and retrieve them when instantiating the client:
 
 ```php
-use Awkaay\Nexusggr\Nexusggr;
+// Example using Laravel's DB facade
+$credentials = DB::table('api_credentials')->where('name', 'nexusggr')->first();
 
-$nexusggr = new Nexusggr;
-$resetBalanceAllUsers = $nexusggr->resetUserBalance();
-<!-- OR -->
-$resetBalanceByUsername = $nexusggr->resetUserBalance(username: 'test');
+$client = new Awkaay\Nexusggr\Nexusggr(
+    $credentials->agent_code,
+    $credentials->agent_token,
+    $credentials->endpoint
+);
+
+// Or update credentials later using setConfig method
+$client->setConfig(
+    $credentials->agent_code,
+    $credentials->agent_token,
+    $credentials->endpoint
+);
 ```
 
-- Etc
+Recommended database structure:
+
+```sql
+CREATE TABLE api_credentials (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(50) NOT NULL,
+    agent_code VARCHAR(100) NOT NULL,
+    agent_token VARCHAR(100) NOT NULL,
+    endpoint VARCHAR(255) NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+```
+
+## Basic Usage
+
 ```php
-use Awkaay\Nexusggr\Nexusggr;
+// Initialize the client
+$nexus = new Awkaay\Nexusggr\Nexusggr();
 
-$nexusggr = new Nexusggr;
-$launchGame = $nexusggr->launchGame();
-$providers = $nexusggr->providers();
-$games = $nexusggr->games();
-$turnovers = $nexusggr->turnovers();
-$currentPlayers = $nexusggr->currentPlayers();
-$callScatterList $nexusggr->callScatterList();
-$callScatterApply = $nexusggr->callScatterApply();
-$callHistory = $nexusggr->callHistory();
-$cancelCall = $nexusggr->cancelCall();
-$controlUserRtp = $nexusggr->controlUserRtp();
-$controlAllUsersRtp = $nexusggr->controlAllUsersRtp();
+// User management
+$userInfo = $nexus->info('username');
+$register = $nexus->register('new_username');
+$deposit = $nexus->transaction('username', 'deposit', 10000, 'unique_id_123');
+
+// Game operations
+$providers = $nexus->providers();
+$games = $nexus->games('PRAGMATIC');
+$launch = $nexus->launchGame('username', 'PRAGMATIC', 'vs20doghouse', 'en');
+
+// Advanced features
+$rtp = $nexus->controlUserRtp('username', 'PRAGMATIC', 92);
+$scatterList = $nexus->callScatterList('PRAGMATIC', 'vs20doghouse');
 ```
+
+## Available Methods
+
+- User Management: `register()`, `info()`, `transaction()`, `resetUserBalance()`, `transferStatus()`
+- Game Operations: `providers()`, `games()`, `launchGame()`, `turnovers()`
+- Scatter Controls: `currentPlayers()`, `callScatterList()`, `callScatterApply()`, `callHistory()`, `cancelCall()`
+- RTP Controls: `controlUserRtp()`, `controlAllUsersRtp()`
+
+For detailed documentation, please refer to the official Nexusggr API documentation.
+
 ## Authors
 
 - [@awkaay](https://t.me/synystergatesofolympus)
