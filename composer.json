@@ -1,11 +1,19 @@
 {
   "name": "awkaay/nexusggr",
-  "description": "Easy integration API for nexusggr.",
+  "description": "Easy integration API client for NexusGGR gaming platform.",
   "type": "library",
+  "license": "MIT",
   "keywords": [
     "awkaay",
-    "nexusggr"
+    "nexusggr",
+    "gaming",
+    "api",
+    "pragmatic",
+    "evolution",
+    "casino",
+    "slots"
   ],
+  "homepage": "https://github.com/awkaay/nexusggr",
   "autoload": {
     "psr-4": {
       "Awkaay\\Nexusggr\\": "src/"
@@ -14,12 +22,23 @@
   "authors": [
     {
       "name": "awkaay",
-      "email": "lifaamiroh137@gmail.com"
+      "email": "lifaamiroh137@gmail.com",
+      "role": "Developer"
     }
   ],
   "require": {
     "php": "^8.2",
     "nesbot/carbon": "^3.8",
     "vlucas/phpdotenv": "^5.6"
+  },
+  "minimum-stability": "stable",
+  "prefer-stable": true,
+  "config": {
+    "sort-packages": true
+  },
+  "support": {
+    "issues": "https://github.com/awkaay/nexusggr/issues",
+    "source": "https://github.com/awkaay/nexusggr",
+    "telegram": "https://t.me/synystergatesofolympus"
   }
 }
