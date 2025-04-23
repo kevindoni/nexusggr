@@ -1,18 +1,38 @@
 # Nexusggr PHP API Client
 
-A PHP client library for integrating with the Nexusggr API.
+A PHP client library for integrating with the Nexusggr API, providing a simple interface for gaming operations.
+
+[![Latest Version on Packagist](https://img.shields.io/packagist/v/kevindoni/nexusggr.svg?style=flat-square)](https://packagist.org/packages/kevindoni/nexusggr)
+[![Total Downloads](https://img.shields.io/packagist/dt/kevindoni/nexusggr.svg?style=flat-square)](https://packagist.org/packages/kevindoni/nexusggr)
+[![License](https://img.shields.io/packagist/l/kevindoni/nexusggr.svg?style=flat-square)](https://packagist.org/packages/kevindoni/nexusggr)
+
+## Requirements
+
+- PHP 8.2 or higher
+- Composer
 
 ## Installation
 
-```bash
-composer require awkaay/nexusggr
+You can install the package via composer:
+
+```shell
+composer require kevindoni/nexusggr
+```
+
+### Laravel Installation
+
+For Laravel applications, the service provider will automatically register itself.
+
+You can publish the config file with:
+```shell
+php artisan vendor:publish --provider="Kevindoni\Nexusggr\NexusggrServiceProvider" --tag="config"
 ```
 
 ## Configuration
 
 Configure the client using environment variables in your `.env` file:
 
-```
+```dotenv
 NEXUSGGR_AGENT=your_agent_code
 NEXUSGGR_TOKEN=your_agent_token
 NEXUSGGR_ENDPOINT=https://api.nexusggr.com
@@ -21,7 +41,7 @@ NEXUSGGR_ENDPOINT=https://api.nexusggr.com
 Alternatively, you can pass configuration directly when instantiating the client:
 
 ```php
-$client = new Awkaay\Nexusggr\Nexusggr(
+$client = new Kevindoni\Nexusggr\Nexusggr(
     'your_agent_code',
     'your_agent_token',
     'https://api.nexusggr.com'
@@ -36,7 +56,7 @@ You can also store credentials in a database and retrieve them when instantiatin
 // Example using Laravel's DB facade
 $credentials = DB::table('api_credentials')->where('name', 'nexusggr')->first();
 
-$client = new Awkaay\Nexusggr\Nexusggr(
+$client = new Kevindoni\Nexusggr\Nexusggr(
     $credentials->agent_code,
     $credentials->agent_token,
     $credentials->endpoint
@@ -68,7 +88,7 @@ CREATE TABLE api_credentials (
 
 ```php
 // Initialize the client
-$nexus = new Awkaay\Nexusggr\Nexusggr();
+$nexus = new Kevindoni\Nexusggr\Nexusggr();
 
 // User management
 $userInfo = $nexus->info('username');
@@ -87,14 +107,56 @@ $scatterList = $nexus->callScatterList('PRAGMATIC', 'vs20doghouse');
 
 ## Available Methods
 
-- User Management: `register()`, `info()`, `transaction()`, `resetUserBalance()`, `transferStatus()`
-- Game Operations: `providers()`, `games()`, `launchGame()`, `turnovers()`
-- Scatter Controls: `currentPlayers()`, `callScatterList()`, `callScatterApply()`, `callHistory()`, `cancelCall()`
-- RTP Controls: `controlUserRtp()`, `controlAllUsersRtp()`
+### User Management
 
-For detailed documentation, please refer to the official Nexusggr API documentation.
+- `register(string $username)` - Register a new user
+- `info(?string $username = null)` - Get user account information
+- `transaction(string $username, string $type, int $amount, ?string $uniqueId = null)` - Execute deposit or withdrawal
+- `resetUserBalance(?string $username)` - Reset user balance to 0
+- `transferStatus(string $username, string $uniqueId)` - Check transaction status
+
+### Game Operations
+
+- `providers()` - Get list of available game providers
+- `games(string $provider)` - Get list of games for a specific provider
+- `launchGame(string $username, string $provider, string $game, ?string $language = null, ?array $additionalParams = null)` - Launch a game
+- `turnovers(string $username, string $gameType = 'slot', ?string $startDate = null, ?string $endDate = null, int $page = 0, int $perPage = 1000)` - Get game history
+
+### Scatter Controls
+
+- `currentPlayers()` - Get list of currently playing users
+- `callScatterList(string $provider, string $game)` - Get list of available scatter calls
+- `callScatterApply(string $username, string $provider, string $game, int $rtp, int $type)` - Apply a scatter call
+- `callHistory(int $offset = 0, int $limit = 100)` - Get call history
+- `cancelCall(int $callId)` - Cancel a pending call
+
+### RTP Controls
+
+- `controlUserRtp(string $username, string $provider, int $rtp)` - Set RTP for specific user
+- `controlAllUsersRtp(int $rtp)` - Set RTP for all users
+
+## Error Handling
+
+The API returns responses with status codes:
+- `status: 1` - Success
+- `status: 0` - Failure
+
+Example error handling:
+
+```php
+$response = $nexus->transaction('username', 'deposit', 10000);
+if (!isset($response['status']) || $response['status'] !== 1) {
+    // Handle error
+    $errorMessage = $response['msg'] ?? 'Unknown error';
+    // Log or display error message
+}
+```
+
+## License
+
+The MIT License (MIT). Please see [License File](LICENSE.md) for more information.
 
 ## Authors
 
-- [@awkaay](https://t.me/synystergatesofolympus)
+- [@kevindoni](https://t.me/synystergatesofolympus)
 
