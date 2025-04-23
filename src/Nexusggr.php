@@ -1,6 +1,6 @@
 <?php
 
-namespace Awkaay\Nexusggr;
+namespace Kevindoni\Nexusggr;
 
 use Carbon\Carbon;
 use Dotenv\Dotenv;
