@@ -11,7 +11,14 @@ class Nexusggr
     protected $token;
     protected $endpoint;
 
-    public function __construct()
+    /**
+     * Create a new Nexusggr instance
+     * 
+     * @param string|null $agent Override agent code from .env
+     * @param string|null $token Override token from .env
+     * @param string|null $endpoint Override endpoint from .env
+     */
+    public function __construct(?string $agent = null, ?string $token = null, ?string $endpoint = null)
     {
         $rootPath = $this->getLaravelBasePath();
 
@@ -20,9 +27,9 @@ class Nexusggr
             $dotenv->load();
         }
 
-        $this->agent = $_ENV['NEXUSGGR_AGENT'] ?? '';
-        $this->token = $_ENV['NEXUSGGR_TOKEN'] ?? '';
-        $this->endpoint = $_ENV['NEXUSGGR_ENDPOINT'] ?? '';
+        $this->agent = $agent ?? $_ENV['NEXUSGGR_AGENT'] ?? '';
+        $this->token = $token ?? $_ENV['NEXUSGGR_TOKEN'] ?? '';
+        $this->endpoint = $endpoint ?? $_ENV['NEXUSGGR_ENDPOINT'] ?? '';
     }
 
     protected function getLaravelBasePath()
@@ -60,9 +67,22 @@ class Nexusggr
         return $this->postArray('user_create', $array);
     }
 
-    public function transaction(string $username, string $type, int $amount)
+    /**
+     * Perform a transaction for a user (deposit or withdraw)
+     * 
+     * @param string $username User code
+     * @param string $type Transaction type (deposit/withdraw)
+     * @param int $amount Amount to transaction
+     * @param string|null $uniqueId Optional unique ID to prevent duplicate transactions
+     * @return array API response
+     */
+    public function transaction(string $username, string $type, int $amount, ?string $uniqueId = null)
     {
         $array = ['user_code' => $username, 'amount' => $amount];
+        
+        if ($uniqueId !== null) {
+            $array['agent_sign'] = $uniqueId;
+        }
 
         $transactionType = 'user_' . $type;
 
@@ -76,9 +96,28 @@ class Nexusggr
         return $this->postArray('user_withdraw_reset', $array);
     }
 
-    public function launchGame(string $username, string $provier, string $game, ?string $language = null)
+    /**
+     * Launch game with additional optional parameters
+     * 
+     * @param string $username User code
+     * @param string $provider Provider code
+     * @param string $game Game code (optional for some providers like EVOLUTION)
+     * @param string|null $language Language code
+     * @param array|null $additionalParams Additional parameters
+     * @return array API response
+     */
+    public function launchGame(string $username, string $provider, string $game, ?string $language = null, ?array $additionalParams = null)
     {
-        $array = ['user_code' => $username, 'provider_code' => $provier, 'game_code' => $game, 'lang' => $language ?? 'en'];
+        $array = [
+            'user_code' => $username, 
+            'provider_code' => $provider, 
+            'game_code' => $game, 
+            'lang' => $language ?? 'en'
+        ];
+
+        if ($additionalParams !== null) {
+            $array = array_merge($array, $additionalParams);
+        }
 
         return $this->postArray('game_launch', $array);
     }
@@ -88,16 +127,49 @@ class Nexusggr
         return $this->postArray('provider_list');
     }
 
-    public function games(string $provier)
+    /**
+     * Get list of games for a specific provider
+     *
+     * @param string $provider Provider code
+     * @return array API response
+     */
+    public function games(string $provider)
     {
-        $array = ['provider_code' => $provier];
+        $array = ['provider_code' => $provider];
 
         return $this->postArray('game_list', $array);
     }
 
-    public function turnovers(string $username)
-    {
-        $array = ['user_code' => $username, 'game_type' => 'slot', 'start' => Carbon::now()->subMonth()->format('Y-m-d H:i:s'), 'end' => Carbon::now()->addDay()->format('Y-m-d H:i:s'), 'page' => 0, 'perPage' => 1000];
+    /**
+     * Get game turnover history with custom parameters
+     * 
+     * @param string $username User code
+     * @param string $gameType Game type (slot, live, etc.)
+     * @param string|null $startDate Start date in Y-m-d H:i:s format
+     * @param string|null $endDate End date in Y-m-d H:i:s format
+     * @param int $page Page number
+     * @param int $perPage Records per page
+     * @return array API response
+     */
+    public function turnovers(
+        string $username, 
+        string $gameType = 'slot',
+        ?string $startDate = null, 
+        ?string $endDate = null,
+        int $page = 0,
+        int $perPage = 1000
+    ) {
+        $startDate = $startDate ?? Carbon::now()->subMonth()->format('Y-m-d H:i:s');
+        $endDate = $endDate ?? Carbon::now()->addDay()->format('Y-m-d H:i:s');
+        
+        $array = [
+            'user_code' => $username,
+            'game_type' => $gameType,
+            'start' => $startDate,
+            'end' => $endDate,
+            'page' => $page,
+            'perPage' => $perPage
+        ];
 
         return $this->postArray('get_game_log', $array);
     }
@@ -107,23 +179,47 @@ class Nexusggr
         return $this->postArray('call_players');
     }
 
-    public function callScatterList(string $provier, string $game)
+    /**
+     * Get scatter list for a specific game
+     *
+     * @param string $provider Provider code
+     * @param string $game Game code
+     * @return array API response
+     */
+    public function callScatterList(string $provider, string $game)
     {
-        $array = ['provider_code' => $provier, 'game_code' => $game];
+        $array = ['provider_code' => $provider, 'game_code' => $game];
 
         return $this->postArray('call_list', $array);
     }
 
-    public function callScatterApply(string $username, string $provier, string $game, int $rtp, int $type)
+    /**
+     * Apply a scatter call for a user
+     *
+     * @param string $username User code
+     * @param string $provider Provider code
+     * @param string $game Game code
+     * @param int $rtp RTP setting
+     * @param int $type Call type (1: Common Free, 2: Buy Bonus Free)
+     * @return array API response
+     */
+    public function callScatterApply(string $username, string $provider, string $game, int $rtp, int $type)
     {
-        $array = ['provider_code' => $provier, 'game_code' => $game, 'user_code' => $username, 'call_rtp' => $rtp, 'call_type' => $type];
+        $array = ['provider_code' => $provider, 'game_code' => $game, 'user_code' => $username, 'call_rtp' => $rtp, 'call_type' => $type];
 
         return $this->postArray('call_apply', $array);
     }
 
-    public function callHistory()
+    /**
+     * Get call history with custom pagination
+     * 
+     * @param int $offset Offset for pagination
+     * @param int $limit Number of records per page
+     * @return array API response
+     */
+    public function callHistory(int $offset = 0, int $limit = 100)
     {
-        $array = ['offset' => 0, 'limit' => 100];
+        $array = ['offset' => $offset, 'limit' => $limit];
 
         return $this->postArray('call_history', $array);
     }
@@ -145,17 +241,48 @@ class Nexusggr
     public function controlAllUsersRtp(int $rtp)
     {
         $getInfo = $this->info();
-        $data = [];
-        if (array_key_exists('user', $getInfo)) {
-            foreach ($getInfo['user'] as $user) {
-                $data = ['username' => $user['user_code']];
+        if (array_key_exists('user_list', $getInfo)) {
+            $userCodes = [];
+            foreach ($getInfo['user_list'] as $user) {
+                $userCodes[] = $user['user_code'];
             }
-            $array = ['user_codes' => json_encode($data['username']), 'rtp' => $rtp];
+            $array = ['user_codes' => json_encode($userCodes), 'rtp' => $rtp];
+            return $this->postArray('control_users_rtp', $array);
         } else {
             return ['error' => 'Not found any user'];
         }
+    }
 
-        return $this->postArray('control_users_rtp', $array);
+    /**
+     * Check the status of a transfer using the unique ID
+     * 
+     * @param string $username User code
+     * @param string $uniqueId The unique ID used for the transfer
+     * @return array API response
+     */
+    public function transferStatus(string $username, string $uniqueId)
+    {
+        $array = [
+            'user_code' => $username,
+            'agent_sign' => $uniqueId
+        ];
+
+        return $this->postArray('transfer_status', $array);
+    }
+
+    /**
+     * Set client configuration options
+     * 
+     * @param string $agent Agent code
+     * @param string $token Agent token
+     * @param string $endpoint API endpoint
+     * @return void
+     */
+    public function setConfig(string $agent, string $token, string $endpoint)
+    {
+        $this->agent = $agent;
+        $this->token = $token;
+        $this->endpoint = $endpoint;
     }
 
     public final function curlInitialized($encode)
