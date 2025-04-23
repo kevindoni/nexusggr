@@ -1,11 +1,12 @@
 {
   "name": "kevindoni/nexusggr",
-  "description": "Easy integration API client for NexusGGR gaming platform.",
+  "description": "Easy integration API client for NexusGGR and Telo gaming platforms.",
   "type": "library",
   "license": "MIT",
   "keywords": [
     "kevindoni",
     "nexusggr",
+    "telo",
     "gaming",
     "api",
     "pragmatic",
@@ -28,6 +29,8 @@
   ],
   "require": {
     "php": "^8.2",
+    "ext-curl": "*",
+    "ext-json": "*",
     "nesbot/carbon": "^3.8",
     "vlucas/phpdotenv": "^5.6"
   },
